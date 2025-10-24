@@ -25,7 +25,7 @@ API_MERCHANTS_ENDPOINT = f"{API_SERVER_URL}/merchants"
 
 
 # --- Models ---
-LLM_MODEL_NAME = "gemini-2.5-pro" 
+LLM_MODEL_NAME = "gemini-2.5-flash" 
 EMBEDDING_MODEL = "dragonkue/BGE-m3-ko"
 
 
