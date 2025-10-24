@@ -1,10 +1,12 @@
 # 🎉 MarketSync (마켓싱크)
 
+**제13회 2025 빅콘테스트 AI데이터 활용분야를 위한 Synapse 팀의 프로젝트입니다.**
+
 ### Agentic RAG 기반 소상공인 맞춤형 지역 축제 추천 & 마케팅 AI 컨설턴트
 
-신한카드 빅데이터와 전국 축제 정보를 통합 분석하여, **AI 에이전트**가 가게별로 참여할 만한 지역 축제를 추천하고 최적의 마케팅 전략 보고서를 자동 생성합니다. 🤖
+신한카드 빅데이터와 전국 축제 정보를 통합 분석하여, **AI 에이전트**가 가게별로 참여할 만한 지역 축제를 추천하고 최적의 마케팅 전략 보고서를 자동 생성합니다.
 
----
+------------------------------------------------------------------------
 
 ## 🧭 프로젝트 개요
 
@@ -12,7 +14,100 @@ MarketSync는 **Streamlit 웹 인터페이스, FastAPI 데이터 서버, LangCha
 
 핵심 아키텍처는 **Agentic RAG**입니다. **AI 에이전트**(`Orchestrator`)는 사용자의 질문과 가게의 상세 프로필(JSON)을 바탕으로 상황에 맞는 **도구**(Tool)를 자율적으로 선택하고, 사용자의 질문에 따라 필요하다면 여러 도구를 순차적으로 호출하여 최종 컨설팅 보고서를 생성합니다.
 
----
+------------------------------------------------------------------------
+
+## 🌐 서비스 데모 URL
+
+**[https://huggingface.co/spaces/hyeonjoo/MarketSync](https://huggingface.co/spaces/hyeonjoo/MarketSync)**
+
+이 앱은 **Hugging Face Spaces** (무료 등급, 16GB RAM)를 이용해 배포되었습니다.
+
+본 프로젝트의 대용량 AI 임베딩 모델(`BGE-m3-ko`)을 실행하기 위해 넉넉한 RAM이 필요했습니다. (대회에서 권장된 Streamlit Cloud는 1GB RAM 제한으로 메모리 오류가 발생하여 Hugging Face로 최종 배포했습니다.)
+
+*참고: 최초 접속 시 또는 비활성화 상태에서 재접속 시, Space가 빌드되거나 모델을 로드하는 데 1~2분 정도 소요될 수 있습니다.*
+
+
+### 💡 GitHub 코드와 배포 버전의 차이
+
+Hugging Face 배포 버전은 배포 편의성을 위해, GitHub 원본 코드의 FastAPI (`api/server.py`) 데이터 처리 로직을 `streamlit_app.py`에 **직접 통합**한 '일체형' 구조입니다.
+
+(원본의 FastAPI 서버는 UI와 데이터 처리를 분리하여 메모리 효율성을 높이기 위한 설계였습니다.)
+
+------------------------------------------------------------------------
+
+## 📜 프로젝트 상세 설명서
+
+아래 이미지를 클릭하면 PDF 상세 설명서 원본을 보거나 다운로드할 수 있습니다.
+
+[![MarketSync 상세 설명서 미리보기](Synape_상세설명서.PNG)](Synape_상세설명서.pdf)
+
+------------------------------------------------------------------------
+
+## 🚀 로컬 개발 환경 구성 방법
+
+### 1️⃣ 사전 준비
+
+* Python 3.11 이상 설치
+* `uv` (Python 패키지 설치 도구) 설치 (`pip install uv`)
+* Google API Key 발급 (Gemini 모델 사용)
+
+### 2️⃣ FastAPI 서버 실행
+
+FastAPI 서버는 가맹점 데이터(`final_df.csv`)를 로드하고, `/profile` (가게 상세 정보), `/merchants` (가게 목록) 엔드포인트를 제공합니다.
+
+```bash
+# 1. 프로젝트 루트 폴더로 이동
+cd C:(다운받은 폴더 위치)
+
+# 2. 가상환경 생성 및 활성화 (최초 1회)
+uv venv
+
+# 3. 가상환경 활성화 (Windows)
+.\.venv\Scripts\activate.bat
+# (macOS/Linux: source .venv/bin/activate)
+
+# 4. 필요한 라이브러리 설치
+uv pip install -r requirements.txt
+
+# 5. FastAPI 서버 실행 (api 폴더의 server.py를 모듈로 실행)
+python -m api.server
+```
+
+### 3️⃣ Streamlit 앱 실행
+
+Streamlit 앱은 사용자 인터페이스를 제공하고, FastAPI 서버에서 데이터를 가져오며, `Orchestrator`를 통해 AI 컨설팅을 수행합니다.
+
+```bash
+# 1. (FastAPI 서버와 다른 터미널에서) 프로젝트 루트 폴더로 이동
+cd C:\(다운받은 폴더 위치)
+
+# 2. 가상환경 활성화 (Windows)
+.\.venv\Scripts\activate.bat
+# (macOS/Linux: source .venv/bin/activate)
+
+# 3. Streamlit secrets 파일 생성 (최초 1회)
+#    - .streamlit 폴더를 생성합니다.
+mkdir .streamlit
+#      아래 명령어의 "(발급받은 gemini API key)" 부분을 실제 키로 대체하세요.
+echo GOOGLE_API_KEY="(발급받은 gemini API key)" > .streamlit\secrets.toml
+
+# 4. Streamlit 앱 실행
+uv run streamlit run streamlit_app.py
+```
+이제 웹 브라우저에서 Streamlit 앱 주소(보통 http://localhost:8501)로 접속하여 MarketSync를 사용할 수 있습니다.
+
+------------------------------------------------------------------------
+
+
+## 🧠 핵심 아이디어
+
+> "LLM이 스스로 도구를 선택하고 실행하는 **Agentic RAG**"
+
+* **LangChain의 Tool-Calling Agent 구조**: LLM이 사용자의 복잡한 요청을 이해하고, 필요한 기능(도구)을 자율적으로 호출하며 작업을 수행합니다.
+* **컨텍스트 기반 의사결정**: 가게 프로필(JSON) 데이터를 핵심 컨텍스트로 활용하여, 모든 분석과 추천이 현재 분석 중인 가게에 맞춰 이루어집니다.
+* **하이브리드 추천 엔진**: FAISS 벡터 검색(유사도 기반)과 LLM 재평가(가게 맞춤성 기반)를 결합하여 추천의 정확성과 관련성을 극대화합니다.
+
+------------------------------------------------------------------------
 
 ## 🛠️ 핵심 도구 및 작동 방식
 
@@ -28,17 +123,7 @@ AI 에이전트가 사용하는 주요 도구와 내부 처리 과정은 다음�
 | **축제 분석** | `analyze_festival_profile` (profile\_analyzer.py)      | **LLM 기반 분석**: <br> 축제 프로필(JSON) 입력 → LLM이 축제의 핵심 특징 및 주요 방문객 특성 요약 보고서 생성                                                                                      |
 | **축제 조회** | `get_festival_profile_by_name` (profile\_analyzer.py)  | **단순 데이터 조회**: 축제 이름 입력 → `festival_df.csv`에서 해당 축제 정보(JSON) 반환 (캐싱 활용)                                                                                           |
 
----
-
-## 🧠 핵심 아이디어
-
-> "LLM이 스스로 도구를 선택하고 실행하는 **Agentic RAG**"
-
-* **LangChain의 Tool-Calling Agent 구조**: LLM이 사용자의 복잡한 요청을 이해하고, 필요한 기능(도구)을 자율적으로 호출하며 작업을 수행합니다.
-* **컨텍스트 기반 의사결정**: 가게 프로필(JSON) 데이터를 핵심 컨텍스트로 활용하여, 모든 분석과 추천이 현재 분석 중인 가게에 맞춰 이루어집니다.
-* **하이브리드 추천 엔진**: FAISS 벡터 검색(유사도 기반)과 LLM 재평가(가게 맞춤성 기반)를 결합하여 추천의 정확성과 관련성을 극대화합니다.
-
----
+------------------------------------------------------------------------
 
 ## 📂 프로젝트 구조 및 코드 설명
 
@@ -397,62 +482,7 @@ AI 에이전트와 도구가 작동하기 위해서는 4가지 핵심 데이터 
 
 * **설명:** 소상공인 마케팅 팁, 전략 보고서, 우수 사례 등 다양한 PDF 및 문서들을 임베딩하여 저장한 **RAG용 FAISS 벡터 데이터베이스**입니다.
 * **생성:** `create_faiss_marketing.py` 스크립트가 `marketing/` 폴더 내의 모든 문서를 로드하고, 텍스트를 적절한 청크(Chunk)로 분할한 뒤, `dragonkue/BGE-m3-ko` 모델로 임베딩하여 `vectorstore/faiss_marketing` 폴더에 FAISS 인덱스로 저장합니다.
-* **용도:** `search_contextual_marketing_strategy` (RAG) 도구가 "요즘 뜨는 홍보 방법 알려줘"와 같은 일반 마케팅 질문에 대해 가장 관련성 높은 지식을 검색하여 답변을 생성하는 데 사용됩니다.
-      
-------------------------------------------------------------------------
-
-## 🚀 실행 방법
-
-### 1️⃣ 사전 준비
-
-* Python 3.11 이상 설치
-* `uv` (Python 패키지 설치 도구) 설치 (`pip install uv`)
-* Google API Key 발급 (Gemini 모델 사용)
-
-### 2️⃣ FastAPI 서버 실행
-
-FastAPI 서버는 가맹점 데이터(`final_df.csv`)를 로드하고, `/profile` (가게 상세 정보), `/merchants` (가게 목록) 엔드포인트를 제공합니다.
-
-```bash
-# 1. 프로젝트 루트 폴더로 이동
-cd C:(다운받은 폴더 위치)
-
-# 2. 가상환경 생성 및 활성화 (최초 1회)
-uv venv
-
-# 3. 가상환경 활성화 (Windows)
-.\.venv\Scripts\activate.bat
-# (macOS/Linux: source .venv/bin/activate)
-
-# 4. 필요한 라이브러리 설치
-uv pip install -r requirements.txt
-
-# 5. FastAPI 서버 실행 (api 폴더의 server.py를 모듈로 실행)
-python -m api.server
-```
-
-### 3️⃣ Streamlit 앱 실행
-
-Streamlit 앱은 사용자 인터페이스를 제공하고, FastAPI 서버에서 데이터를 가져오며, `Orchestrator`를 통해 AI 컨설팅을 수행합니다.
-
-```bash
-# 1. (FastAPI 서버와 다른 터미널에서) 프로젝트 루트 폴더로 이동
-cd C:\(다운받은 폴더 위치)
-
-# 2. 가상환경 활성화 (Windows)
-.\.venv\Scripts\activate.bat
-# (macOS/Linux: source .venv/bin/activate)
-
-# 3. Streamlit secrets 파일 생성 (최초 1회)
-#    - .streamlit 폴더를 생성합니다.
-mkdir .streamlit
-#      아래 명령어의 "(발급받은 gemini API key)" 부분을 실제 키로 대체하세요.
-echo GOOGLE_API_KEY="(발급받은 gemini API key)" > .streamlit\secrets.toml
-
-# 4. Streamlit 앱 실행
-uv run streamlit run streamlit_app.py
-```
-이제 웹 브라우저에서 Streamlit 앱 주소(보통 http://localhost:8501)로 접속하여 MarketSync를 사용할 수 있습니다.
+* **용도:** `search_contextual_marketing_strategy` (RAG) 도구가 "요즘 뜨는 홍보 방법 알려줘"와 같은 일반 마케팅 질문에 대해 가장 관련성 높은 지식을 검색하여 답변을 생성하는 데 사용됩니다.      
 
 ------------------------------------------------------------------------
 
