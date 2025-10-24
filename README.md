@@ -31,7 +31,7 @@ MarketSync는 **Streamlit 웹 인터페이스, FastAPI 데이터 서버, LangCha
 
 Hugging Face 배포 버전은 배포 편의성을 위해, GitHub 원본 코드의 FastAPI (`api/server.py`) 데이터 처리 로직을 `streamlit_app.py`에 **직접 통합**한 '일체형' 구조입니다.
 
-(원본의 FastAPI 서버는 UI와 데이터 처리를 분리하여 메모리 효율성을 높이기 위한 설계였습니다.)
+(Github 코드의 FastAPI 서버는 UI와 데이터 처리를 분리하여 메모리 효율성을 높이기 위한 설계였습니다.)
 
 ------------------------------------------------------------------------
 
